@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusPulse - Enterprise College Attendance Management System</title>
+  <meta name="description" content="Institutional Attendance Management & Academic Compliance System for 5,000 Students and 200 Faculty. Address roll-call, QR batch scanning, two-tier HOD corrections, defaulter tracking (<75%), and hall ticket eligibility.">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Custom Design System -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="antialiased text-slate-100 flex flex-col min-h-screen">
+
+  <!-- TOP PERSONA / ROLE SWITCHER BANNER -->
+  <header class="border-b border-white/10 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+        
+        <!-- Brand Logo & Title -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
+            <i class="fa-solid fa-graduation-cap text-lg"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="font-heading font-extrabold text-xl text-white tracking-wide">CampusPulse</h1>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase">Enterprise v2.4</span>
+            </div>
+            <p class="text-[11px] text-slate-400">St. John's Institute of Technology • 5,000 Students | 200 Faculty</p>
+          </div>
+        </div>
+
+        <!-- Role Persona Selector Buttons -->
+        <div class="flex items-center bg-white/5 p-1.5 rounded-2xl border border-white/10 overflow-x-auto max-w-full">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 px-3 hidden lg:inline">Switch Persona View:</span>
+          
+          <button onclick="App.switchRole('faculty')" data-role="faculty" class="role-switch-btn px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-chalkboard-user"></i> Faculty
+          </button>
+          
+          <button onclick="App.switchRole('hod')" data-role="hod" class="role-switch-btn px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-user-tie"></i> HOD (CSE)
+          </button>
+
+          <button onclick="App.switchRole('admin')" data-role="admin" class="role-switch-btn px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-user-gear"></i> Dean / Admin
+          </button>
+
+          <button onclick="App.switchRole('student')" data-role="student" class="role-switch-btn px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-user-graduate"></i> Student
+          </button>
+        </div>
+
+        <!-- Active User Avatar -->
+        <div class="hidden sm:flex items-center gap-3 pl-4 border-l border-white/10">
+          <img id="nav-user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80" class="w-9 h-9 rounded-full object-cover border border-indigo-400/40" alt="">
+          <div>
+            <div id="nav-user-name" class="text-xs font-bold text-white">Prof. Alan Vance</div>
+            <div id="nav-user-role" class="text-[10px] text-indigo-300">Assistant Professor - CSE</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Navigation Tabs Bar -->
+    <div class="border-t border-white/5 bg-slate-900/60">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div id="nav-tabs-container" class="flex items-center gap-2 overflow-x-auto py-2">
+          <!-- Rendered dynamically by App.renderNavigationTabs() -->
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN APP CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+    
+    <!-- 1. DASHBOARD VIEW -->
+    <div id="view-dashboard" class="view-section hidden"></div>
+
+    <!-- 2. RECORD ATTENDANCE / ROLL CALL GRID VIEW -->
+    <div id="view-rollcall" class="view-section hidden"></div>
+
+    <!-- 3. CORRECTIONS & AUDIT VIEW -->
+    <div id="view-corrections" class="view-section hidden"></div>
+
+    <!-- 4. LOW ATTENDANCE DEFAULTERS VIEW -->
+    <div id="view-defaulters" class="view-section hidden"></div>
+
+    <!-- 5. STUDENT SELF-SERVICE PORTAL VIEW -->
+    <div id="view-studentview" class="view-section hidden"></div>
+
+    <!-- 6. DATA MODEL & ARCHITECTURE VIEW -->
+    <div id="view-architecture" class="view-section hidden"></div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-white/10 bg-slate-950/80 py-6 text-slate-400 text-xs text-center">
+    <div class="max-w-7xl mx-auto px-4">
+      <p class="font-medium text-slate-300">CampusPulse College Attendance & Compliance Management Infrastructure</p>
+      <p class="mt-1 text-[11px] text-slate-500">Supporting 5,000 Students, 200 Faculty, 5 Academic Departments • St. John's Institute of Technology</p>
+    </div>
+  </footer>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-container"></div>
+
+  <!-- ========================================== -->
+  <!-- MODAL 1: SIMULATED QR & BARCODE BATCH SCANNER -->
+  <!-- ========================================== -->
+  <div id="modal-scanner" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay hidden">
+    <div class="glass-panel w-full max-w-lg p-6 relative border-cyan-500/40 shadow-2xl">
+      <button onclick="App.closeScannerModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white text-lg">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-lg">
+          <i class="fa-solid fa-qrcode"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold font-heading text-white">Batch Student QR Scanner</h3>
+          <p class="text-xs text-slate-400">Simulating live optical scan for instant class check-in</p>
+        </div>
+      </div>
+
+      <!-- Animated Viewfinder -->
+      <div class="scanner-container h-48 mb-4 flex items-center justify-center border border-cyan-500/30">
+        <div class="scanner-laser"></div>
+        <div class="text-center text-slate-400 text-xs">
+          <i class="fa-solid fa-camera text-3xl mb-2 text-cyan-400/60 animate-pulse"></i>
+          <div>Point camera or ID barcode reader at student card...</div>
+        </div>
+      </div>
+
+      <!-- Scanned Logs Box -->
+      <div class="bg-slate-950 p-3 rounded-xl border border-white/10 mb-4">
+        <div class="text-[11px] uppercase font-bold text-slate-400 mb-2">Live Scanner Stream</div>
+        <div id="scanner-log" class="h-32 overflow-y-auto space-y-1"></div>
+      </div>
+
+      <button onclick="App.closeScannerModal()" class="w-full py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-xs transition">
+        Done Scanning & Return to Roll Call
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL 2: ATTENDANCE CORRECTION REQUEST FORM -->
+  <!-- ========================================== -->
+  <div id="modal-correction" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay hidden">
+    <div class="glass-panel w-full max-w-md p-6 relative shadow-2xl">
+      <button onclick="App.closeCorrectionModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white text-lg">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <h3 class="text-lg font-bold font-heading text-white mb-1">Submit Attendance Correction</h3>
+      <p class="text-xs text-slate-400 mb-4">Requests require HOD approval before updating master attendance logs.</p>
+
+      <form onsubmit="App.submitCorrectionForm(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block text-slate-300 font-medium mb-1">Student</label>
+          <select id="corr-student" class="w-full p-2.5 rounded-xl glass-input text-xs font-medium"></select>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-medium mb-1">Proposed Status Change</label>
+          <select id="corr-status" class="w-full p-2.5 rounded-xl glass-input text-xs font-medium">
+            <option value="PRESENT">PRESENT</option>
+            <option value="EXCUSED">EXCUSED (Medical / On-Duty)</option>
+            <option value="LATE">LATE</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-medium mb-1">Mandatory Justification / Proof Notes</label>
+          <textarea id="corr-reason" required rows="3" placeholder="State reason (e.g., biometric error, hospital slip, sports OD event)..." class="w-full p-2.5 rounded-xl glass-input text-xs font-medium"></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button type="button" onclick="App.closeCorrectionModal()" class="px-4 py-2 rounded-xl bg-white/10 text-slate-300 font-semibold hover:bg-white/15">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-md">Submit to HOD</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL 3: BATCH WARNING EMAIL COMPOSER -->
+  <!-- ========================================== -->
+  <div id="modal-warning" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay hidden">
+    <div class="glass-panel w-full max-w-lg p-6 relative shadow-2xl">
+      <button onclick="App.closeBatchWarningModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white text-lg">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-lg">
+          <i class="fa-solid fa-paper-plane"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold font-heading text-white">Batch Low Attendance Dispatcher</h3>
+          <p class="text-xs text-slate-400">Automated notification preview for guardians & students (<75%)</p>
+        </div>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <div class="p-3 rounded-xl bg-slate-900 border border-white/10 font-mono text-slate-300">
+          <div><strong class="text-indigo-400">Subject:</strong> URGENT: Academic Low Attendance Warning Notice - St. John's Institute</div>
+          <div class="mt-2 text-[11px] leading-relaxed text-slate-400">
+            "Dear Parent/Guardian, This is an automated academic alert. Your ward's current cumulative attendance has fallen below the mandatory institutional benchmark of 75.0%. Failure to attend upcoming remedial classes will result in exam hall ticket forfeiture..."
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-slate-300">
+          <span>Recipients: <strong class="text-amber-400">28 Defaulter Students & Guardians</strong></span>
+          <span>Channels: <strong>Email + SMS Gateway</strong></span>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button onclick="App.closeBatchWarningModal()" class="px-4 py-2 rounded-xl bg-white/10 text-slate-300 font-semibold">Cancel</button>
+          <button onclick="App.sendBatchWarnings()" class="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-semibold shadow-md">Dispatch All Warnings</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL 4: STUDENT MEDICAL / EXCUSE SUBMITTER -->
+  <!-- ========================================== -->
+  <div id="modal-excuse" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay hidden">
+    <div class="glass-panel w-full max-w-md p-6 relative shadow-2xl">
+      <button onclick="App.closeExcuseModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white text-lg">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <h3 class="text-lg font-bold font-heading text-white mb-1">Submit Absence Excuse Application</h3>
+      <p class="text-xs text-slate-400 mb-4">Attach medical certificate or On-Duty event approval.</p>
+
+      <form onsubmit="App.submitExcuseNote(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block text-slate-300 font-medium mb-1">Category</label>
+          <select class="w-full p-2.5 rounded-xl glass-input text-xs font-medium">
+            <option>Medical Leave (Clinic Certificate)</option>
+            <option>Inter-College Competition / Sports OD</option>
+            <option>Academic Symposium / Workshop</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-medium mb-1">Date Range</label>
+          <input type="date" value="2026-09-22" class="w-full p-2.5 rounded-xl glass-input text-xs font-medium">
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-medium mb-1">Supporting Document</label>
+          <input type="file" class="w-full p-2 rounded-xl glass-input text-xs text-slate-400">
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button type="button" onclick="App.closeExcuseModal()" class="px-4 py-2 rounded-xl bg-white/10 text-slate-300 font-semibold">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold">Submit Application</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL 5: ARCHITECTURE DIAGRAM INSPECTOR -->
+  <!-- ========================================== -->
+  <div id="modal-architecture" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay hidden">
+    <div class="glass-panel w-full max-w-3xl p-6 relative max-h-[90vh] overflow-y-auto shadow-2xl">
+      <button onclick="App.closeArchitectureModal()" class="absolute right-4 top-4 text-slate-400 hover:text-white text-lg">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <h3 class="text-xl font-bold font-heading text-white mb-2">CampusPulse System Architecture Overview</h3>
+      <p class="text-xs text-slate-400 mb-6">Designed to handle 5,000 students, 200 faculty members, and real-time attendance compliance across multiple academic departments.</p>
+
+      <div class="space-y-6 text-xs">
+        <div class="p-4 rounded-xl bg-slate-900 border border-white/10">
+          <h4 class="font-bold text-indigo-400 text-sm mb-2">User Persona & Permission Workflow</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-slate-300">
+            <div class="p-2.5 bg-white/5 rounded-lg border border-white/5">
+              <strong class="text-white block mb-1">1. Faculty / Teacher</strong>
+              - Daily class timetable slot selection<br>
+              - Quick roll call grid & barcode scanner<br>
+              - Submits correction requests with proof
+            </div>
+            <div class="p-2.5 bg-white/5 rounded-lg border border-white/5">
+              <strong class="text-white block mb-1">2. Department Head (HOD)</strong>
+              - Department attendance health summary<br>
+              - Reviews & approves/rejects corrections<br>
+              - Manages departmental defaulter list
+            </div>
+            <div class="p-2.5 bg-white/5 rounded-lg border border-white/5">
+              <strong class="text-white block mb-1">3. Admin / Dean</strong>
+              - Institutional compliance analytics<br>
+              - Campus-wide defaulter hall ticket blockage<br>
+              - Immutable audit log monitoring
+            </div>
+            <div class="p-2.5 bg-white/5 rounded-lg border border-white/5">
+              <strong class="text-white block mb-1">4. Student</strong>
+              - Subject-wise attendance breakdown<br>
+              - "Classes Needed for 75%" calculator<br>
+              - Submits excuse notes & medical certificates
+            </div>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-900 border border-white/10">
+          <h4 class="font-bold text-emerald-400 text-sm mb-2">Database Normalization Strategy</h4>
+          <p class="text-slate-300 leading-relaxed">
+            Entities strictly decoupled across <code class="text-indigo-300">User</code>, <code class="text-indigo-300">Department</code>, <code class="text-indigo-300">CourseSection</code>, <code class="text-indigo-300">ClassSchedule</code>, <code class="text-indigo-300">AttendanceSession</code>, and <code class="text-indigo-300">AttendanceRecord</code>. Indexed on <code class="text-indigo-300">(session_id, student_id)</code> to support rapid aggregation of 360,000 monthly attendance logs.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Scripts -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
